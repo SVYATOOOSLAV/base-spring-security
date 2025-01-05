@@ -1,59 +1,32 @@
 package by.svyat.base.spring.security.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
 public class MySecurityConfig {
 
+    DataSource dataSource;
+
+    public MySecurityConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Bean
-    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-
-        manager.createUser(
-                User.withDefaultPasswordEncoder()
-                        .username("svyat")
-                        .password("svyat")
-                        .roles("EMPLOYEE")
-                        .build()
-        );
-
-        manager.createUser(
-                User.withDefaultPasswordEncoder()
-                        .username("zaur")
-                        .password("zaur")
-                        .roles("HR")
-                        .build()
-        );
-
-        manager.createUser(
-                User.withDefaultPasswordEncoder()
-                        .username("nastya")
-                        .password("nastya")
-                        .roles("MANAGER")
-                        .build()
-        );
-
-        manager.createUser(
-                User.withDefaultPasswordEncoder()
-                        .username("viktor")
-                        .password("viktor")
-                        .roles("USER")
-                        .build()
-        );
-
-        return manager;
+    public UserDetailsManager userDetailsManager() {
+        return new JdbcUserDetailsManager(dataSource);
     }
 
     @Bean
